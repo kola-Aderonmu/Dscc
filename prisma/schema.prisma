@@ -1,0 +1,193 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+enum ProfileType {
+  executive
+  investor
+  official
+  tech
+  personal
+  custom
+}
+
+enum CardStatus {
+  active
+  inactive
+  archived
+  expired
+}
+
+enum ScanSource {
+  qr
+  direct_link
+  nfc
+}
+
+enum ScanAction {
+  viewed
+  downloaded_vcard
+  clicked_call
+  clicked_email
+  clicked_whatsapp
+  clicked_website
+  clicked_linkedin
+  clicked_twitter
+}
+
+model User {
+  id        String      @id @default(cuid())
+  authId    String      @unique
+  fullName  String
+  email     String      @unique
+  phone     String?
+  avatarUrl String?
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  profiles  Profile[]
+  settings  UserSetting?
+
+  @@index([authId])
+  @@index([email])
+}
+
+model Profile {
+  id                String                     @id @default(cuid())
+  userId            String
+  name              String
+  profileType       ProfileType               @default(custom)
+  fullName          String
+  title             String?
+  organizationName  String?
+  bio               String?
+  skills            String[]
+  email             String?
+  phone             String?
+  whatsapp          String?
+  website           String?
+  linkedinUrl       String?
+  twitterUrl        String?
+  address           String?
+  logoUrl           String?
+  profilePhotoUrl   String?
+  isActive          Boolean                    @default(true)
+  isDefault         Boolean                    @default(false)
+  expiresAt         DateTime?
+  createdAt         DateTime                   @default(now())
+  updatedAt         DateTime                   @updatedAt
+
+  user              User                       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  visibilitySetting ProfileVisibilitySetting?
+  cards             ProfileCard[]
+
+  @@index([userId])
+  @@index([profileType])
+  @@index([isActive])
+  @@index([isDefault])
+}
+
+model ProfileVisibilitySetting {
+  id                   String    @id @default(cuid())
+  profileId            String    @unique
+  showEmail            Boolean   @default(true)
+  showPhone            Boolean   @default(true)
+  showWhatsapp         Boolean   @default(true)
+  showWebsite          Boolean   @default(true)
+  showLinkedin         Boolean   @default(true)
+  showTwitter          Boolean   @default(true)
+  showAddress          Boolean   @default(false)
+  allowVcardDownload   Boolean   @default(true)
+  allowProfileDownload Boolean   @default(false)
+  isPublic             Boolean   @default(true)
+  requirePassword      Boolean   @default(false)
+  passwordHash         String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  profile              Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([isPublic])
+}
+
+model CardTemplate {
+  id           String        @id @default(cuid())
+  name         String
+  slug         String        @unique
+  themeType    String
+  layoutConfig Json
+  isPremium    Boolean       @default(false)
+  isActive     Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+
+  cards        ProfileCard[]
+
+  @@index([slug])
+  @@index([isActive])
+}
+
+model ProfileCard {
+  id            String       @id @default(cuid())
+  profileId     String
+  templateId    String
+  cardSlug      String       @unique
+  publicToken   String       @unique
+  status        CardStatus   @default(active)
+  qrCodeUrl     String?
+  shortUrl      String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  profile       Profile      @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  template      CardTemplate @relation(fields: [templateId], references: [id])
+  scanLogs      ScanLog[]
+
+  @@index([profileId])
+  @@index([templateId])
+  @@index([cardSlug])
+  @@index([publicToken])
+  @@index([status])
+}
+
+model ScanLog {
+  id            String      @id @default(cuid())
+  profileCardId String
+  scannedAt     DateTime    @default(now())
+  ipAddress     String?
+  userAgent     String?
+  deviceType    String?
+  browser       String?
+  country       String?
+  city          String?
+  referrer      String?
+  scanSource    ScanSource  @default(qr)
+  actionTaken   ScanAction  @default(viewed)
+
+  profileCard   ProfileCard @relation(fields: [profileCardId], references: [id], onDelete: Cascade)
+
+  @@index([profileCardId])
+  @@index([scannedAt])
+  @@index([scanSource])
+  @@index([actionTaken])
+}
+
+model UserSetting {
+  id                  String    @id @default(cuid())
+  userId              String    @unique
+  defaultProfileId    String?
+  themePreference     String    @default("system")
+  notificationEnabled Boolean   @default(true)
+  scanAlertsEnabled   Boolean   @default(true)
+  language            String    @default("en")
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}

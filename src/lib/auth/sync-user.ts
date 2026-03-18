@@ -26,6 +26,7 @@ export async function syncUserToDatabase({
       authId,
       email,
       fullName: fullName?.trim() || "New User",
+      role: "user",
       settings: {
         create: {},
       },

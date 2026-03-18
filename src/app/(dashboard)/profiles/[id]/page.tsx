@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import DeleteProfileForm from "@/components/profiles/delete-profile-form";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 
@@ -113,12 +114,7 @@ export default async function ProfileDetailsPage({
           Edit Profile
         </Link>
 
-        <button
-          type="button"
-          className="inline-flex items-center justify-center rounded-full border border-red-300 px-5 py-3 text-sm font-medium text-red-600 transition hover:bg-red-50"
-        >
-          Delete Profile
-        </button>
+        <DeleteProfileForm profileId={profile.id} />
       </div>
     </div>
   );

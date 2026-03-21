@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { createProfileCard } from "./card-actions";
+import CardTemplatePreview from "@/components/cards/card-template-preview";
 
 type CardSelectionPageProps = {
   params: Promise<{
@@ -54,7 +55,7 @@ export default async function CardSelectionPage({
             Choose Card Template
           </h2>
           <p className="mt-2 text-slate-500">
-            Select a template for{" "}
+            Select a premium template for{" "}
             <span className="font-medium">{profile.name}</span>.
           </p>
         </div>
@@ -66,74 +67,37 @@ export default async function CardSelectionPage({
           Back to Profile
         </Link>
       </div>
-
-      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
         {templates.map((template) => (
           <form
             key={template.id}
             action={createProfileCard}
-            className="rounded-3xl border border-slate-200 p-5 shadow-sm transition hover:shadow-md"
+            className="rounded-[30px] border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
           >
             <input type="hidden" name="profileId" value={profile.id} />
             <input type="hidden" name="templateId" value={template.id} />
 
-            <div className="rounded-3xl border border-slate-200 p-5">
-              <div
-                className={`h-44 rounded-2xl ${
-                  template.slug === "executive-dark"
-                    ? "bg-slate-900"
-                    : template.slug === "clean-corporate"
-                      ? "bg-slate-100"
-                      : "bg-white/30 backdrop-blur border border-slate-200"
-                } flex items-end p-4`}
-              >
-                <div>
-                  <p
-                    className={`text-sm ${
-                      template.slug === "executive-dark"
-                        ? "text-slate-300"
-                        : "text-slate-500"
-                    }`}
-                  >
-                    DSCC Preview
-                  </p>
-                  <h3
-                    className={`mt-1 text-xl font-bold ${
-                      template.slug === "executive-dark"
-                        ? "text-white"
-                        : "text-slate-800"
-                    }`}
-                  >
-                    {profile.fullName}
-                  </h3>
-                  <p
-                    className={`text-sm ${
-                      template.slug === "executive-dark"
-                        ? "text-slate-300"
-                        : "text-slate-500"
-                    }`}
-                  >
-                    {profile.title || "Professional Profile"}
-                  </p>
-                </div>
-              </div>
+            <CardTemplatePreview
+              template={template}
+              profile={profile}
+              compact
+            />
 
-              <div className="mt-4">
-                <h4 className="text-lg font-semibold text-slate-800">
-                  {template.name}
-                </h4>
-                <p className="mt-1 text-sm capitalize text-slate-500">
-                  {template.themeType} theme
-                </p>
-              </div>
-
-              <button
-                type="submit"
-                className="mt-5 w-full rounded-full bg-[#36c1bf] px-4 py-3 text-sm font-medium text-white transition hover:bg-[#2eb5b6]"
-              >
-                Use This Template
-              </button>
+            <div className="mt-4">
+              <h4 className="text-lg font-semibold text-slate-800">
+                {template.name}
+              </h4>
+              <p className="mt-1 text-sm capitalize text-slate-500">
+                {template.themeType} theme
+              </p>
             </div>
+
+            <button
+              type="submit"
+              className="mt-5 w-full rounded-full bg-[#36c1bf] px-4 py-3 text-sm font-medium text-white transition hover:bg-[#2eb5b6]"
+            >
+              Use This Template
+            </button>
           </form>
         ))}
       </div>

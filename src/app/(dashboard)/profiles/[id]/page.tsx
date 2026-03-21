@@ -108,6 +108,13 @@ export default async function ProfileDetailsPage({
 
       <div className="flex flex-wrap gap-3">
         <Link
+          href={`/profiles/${profile.id}/card`}
+          className="inline-flex items-center justify-center rounded-full bg-[#111827] px-5 py-3 text-sm font-medium text-white transition hover:bg-slate-800"
+        >
+          Create Smart Card
+        </Link>
+
+        <Link
           href={`/profiles/${profile.id}/edit`}
           className="inline-flex items-center justify-center rounded-full bg-[#36c1bf] px-5 py-3 text-sm font-medium text-white transition hover:bg-[#2eb5b6]"
         >
